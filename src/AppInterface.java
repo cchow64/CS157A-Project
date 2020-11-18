@@ -85,7 +85,7 @@ public class AppInterface {
 	
 	private void dispAMenu() {
 		System.out.println("Choose an option:\n"
-				+ " (einfo): Show employee's ids and their roles\n"
+				+ " (einfo): Show employee's information.\n"
 				+ " (exit): Leave the app"
 				+ "\n");
 	}
@@ -145,7 +145,7 @@ public class AppInterface {
     		stmt = connection.createStatement();
     		rs = stmt.executeQuery("SELECT * FROM Employee");
     		while (rs.next()) {
-    			System.out.printf("Employee's ID: %d  |  Employee's role: %s\n", rs.getInt("eID"), rs.getString("role"));
+    			System.out.printf("Employee's ID: %d  | Employee's name: %s | Employee's role: %s\n ", rs.getInt("eid"), rs.getString("name"), rs.getString("role"));
     		}
 		}
 		catch (SQLException e) {
