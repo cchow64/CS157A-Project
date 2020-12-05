@@ -10,8 +10,8 @@ mID int NOT NULL AUTO_INCREMENT,
 title VARCHAR(100) NOT NULL,
 duration INT NOT NULL,
 rating VARCHAR(20) NOT NULL,
-releaseDate datetime,
-endDate datetime,
+releaseDate DATE,
+endDate DATE,
 primary key(mId)
 );
 
@@ -22,7 +22,7 @@ screenID INT,
 mID INT,
 roomID INT NOT NULL,
 showingTime datetime,
-updatedAt timestamp on update current_timestamp,
+updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 primary key(screenID),
 foreign key(mID) REFERENCES Movie(mID)
 );
@@ -114,11 +114,30 @@ roomID INT NOT NULL,
 showingTime datetime
 );
 
+# Procedure to make a phase screenings out:
+DELIMITER //
+CREATE PROCEDURE PhaseScreeningOut(
+    IN cutoff DATE
+)
+BEGIN
+    INSERT INTO Archive
+    SELECT screenID, mID, roomID, showingTime
+	FROM Screening
+	WHERE DATE(updatedAt) < cutoff;
+    
+    DELETE FROM Screening
+    WHERE DATE(updatedAt) < cutoff;
+END //
+DELIMITER ;
+
+
 
 INSERT INTO Employee VALUES(123, "Daniel", "Cashier");
 
 INSERT INTO Customer VALUES(1, "Tyler", 24);
 INSERT INTO Customer VALUES(2, "Amy", 29);
+INSERT INTO Movie VALUES(DEFAULT, "Gone with the wind", 136, "PG-13", '2000-02-16', '2000-03-16');
+INSERT INTO Screening VALUES(1, 1, 1, '2000-02-16 12:30:00', DEFAULT);
 
 INSERT INTO Seats Values(1, 1, "reserved");
 INSERT INTO Seats Values(1, 2, "reserved");
