@@ -78,6 +78,9 @@ public class AppInterface {
 				+ " (r) : Make reservation\n"
 				+ " (seatstatus) : Return seats that are reserved\n"
 				+ " (cinfo) : Display customer information\n"
+				+ " (5star) : Display movies with 5 stars\n"
+				+ " (roomtitle) : Display title of movies playing in each room\n"
+				+ " (4star) : Display title and ID of movie with at least 4 stars and a running time of less than 2 hours\n"
 				+ " (exit): Leave the app"
 				+ "\n");
 	}
@@ -85,7 +88,9 @@ public class AppInterface {
 	
 	private void dispAMenu() {
 		System.out.println("Choose an option:\n"
-				+ " (einfo): Show employee's ids and their roles\n"
+				+ " (einfo): Show employee's information.\n"
+				+ " (cname): Show customer names that appear more than once.\n"
+				+ " (avgage): Show average age of csutomers.\n"
 				+ " (exit): Leave the app"
 				+ "\n");
 	}
@@ -106,6 +111,19 @@ public class AppInterface {
 		{
 			getCInfo();
 		}
+		else if(s.equals("5star"))
+		{
+			get5Star(); 
+		}
+		else if(s.equals("roomtitle"))
+		{
+			roomTitle(); 
+		}
+		
+		else if(s.equals("4star"))
+		{
+			get4Star(); 
+		}
 		
 		else if (s.equals("exit")) {
 			this.close();
@@ -125,10 +143,20 @@ public class AppInterface {
 			getEInfo();
 		}
 		
+		else if (s.equals("cname")) {
+			cName();
+		}
+		
+		else if (s.equals("avgage")) {
+			getAvgAge();
+		}
+		
 		else if (s.equals("exit")) {
 			this.close();
 			return false;
 		}
+		
+		
 		
 		else {
 			System.out.println("Sorry, wrong input or improperly formatted, try again.");
@@ -145,7 +173,7 @@ public class AppInterface {
     		stmt = connection.createStatement();
     		rs = stmt.executeQuery("SELECT * FROM Employee");
     		while (rs.next()) {
-    			System.out.printf("Employee's ID: %d  |  Employee's role: %s\n", rs.getInt("eID"), rs.getString("role"));
+    			System.out.printf("Employee's ID: %d  | Employee's name: %s | Employee's role: %s\n ", rs.getInt("eid"), rs.getString("name"), rs.getString("role"));
     		}
 		}
 		catch (SQLException e) {
@@ -177,5 +205,74 @@ public class AppInterface {
 		catch (SQLException e) {
 			System.out.println("Error creating statement");
 		}
+		
+		
 	}
+	
+	private void get5Star() {
+		try {
+    		stmt = connection.createStatement();
+    		rs = stmt.executeQuery("SELECT distinct Movie.mID, Movie.title FROM Movie, MovieStats where Movie.mID in (SELECT MovieStats.mID FROM MovieStats where stars = 5)");
+    		while (rs.next()) {
+    			System.out.printf("Movie ID: %d  | Movie title: %s\n", rs.getInt("mID"), rs.getString("title"));
+    		}
+		}
+		catch (SQLException e) {
+			System.out.println("Error creating statement");
+		}
+	}
+	
+	private void roomTitle() {
+		try {
+    		stmt = connection.createStatement();
+    		rs = stmt.executeQuery("SELECT roomID, title FROM Movie Left Outer Join Screening on Movie.mID = Screening.mID WHERE roomID IS NOT NULL");
+    		while (rs.next()) {
+    			System.out.printf("Room ID: %d  | Movie title: %s\n", rs.getInt("roomID"), rs.getString("title"));
+    		}
+		}
+		catch (SQLException e) {
+			System.out.println("Error creating statement");
+		}
+	}
+	
+	private void cName() {
+		try {
+    		stmt = connection.createStatement();
+    		rs = stmt.executeQuery("SELECT cID, name FROM Customer old WHERE cID != ANY (SELECT cID FROM Customer WHERE name = old.name)");
+    		while (rs.next()) {
+    			System.out.printf("Customer ID: %d  | Customer name: %s\n", rs.getInt("cID"), rs.getString("name"));
+    		}
+		}
+		catch (SQLException e) {
+			System.out.println("Error creating statement");
+		}
+	}
+	
+	private void getAvgAge() {
+		try {
+    		stmt = connection.createStatement();
+    		rs = stmt.executeQuery("SELECT avg(age) FROM Customer");
+    		while (rs.next()) {
+    			System.out.printf("Average age: %f ", rs.getFloat("avg(age)"));
+    		}
+		}
+		catch (SQLException e) {
+			System.out.println("Error creating statement");
+		}
+	}
+	
+	private void get4Star() {
+		try {
+    		stmt = connection.createStatement();
+    		rs = stmt.executeQuery("SELECT Movie.mID, title FROM Movie, MovieStats WHERE Movie.mID = MovieStats.mID and stars >=4 and duration < 120");
+    		while (rs.next()) {
+    			System.out.printf("Movie ID: %d  | Movie title: %s\n" , rs.getInt("Movie.mID"), rs.getString("title"));
+    		}
+		}
+		catch (SQLException e) {
+			System.out.println("Error creating statement");
+		}
+	}
+	
+	
 }
