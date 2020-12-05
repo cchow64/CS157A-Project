@@ -1,9 +1,12 @@
 import java.sql.*;
 import java.util.Scanner;
+import java.util.regex.Matcher; 
+import java.util.regex.Pattern; 
 public class AppInterface {
 	
 	private Connection connection = null;
 	private Statement stmt = null;
+	private PreparedStatement pstmt = null;
 	private ResultSet rs = null;
 	
 	private Scanner scan = null;
@@ -39,7 +42,6 @@ public class AppInterface {
 				dispAMenu();
 				input = scan.nextLine();
 				keepRunning = aHandler(input);
-				System.out.println("\n\n");
 			}
 	}
 
@@ -74,25 +76,24 @@ public class AppInterface {
 	
 	
 	private void dispUMenu() {
-		System.out.println("Choose an option:\n"
+		System.out.println("\nChoose an option:\n"
 				+ " (r) : Make reservation\n"
 				+ " (seatstatus) : Return seats that are reserved\n"
 				+ " (cinfo) : Display customer information\n"
 				+ " (5star) : Display movies with 5 stars\n"
 				+ " (roomtitle) : Display title of movies playing in each room\n"
 				+ " (4star) : Display title and ID of movie with at least 4 stars and a running time of less than 2 hours\n"
-				+ " (exit): Leave the app"
-				+ "\n");
+				+ " (exit): Leave the app");
 	}
 	
 	
 	private void dispAMenu() {
-		System.out.println("Choose an option:\n"
+		System.out.println("\nChoose an option:\n"
 				+ " (einfo): Show employee's information.\n"
 				+ " (cname): Show customer names that appear more than once.\n"
-				+ " (avgage): Show average age of csutomers.\n"
-				+ " (exit): Leave the app"
-				+ "\n");
+				+ " (avgage): Show average age of customers.\n"
+				+ " (archive): Archive screenings.\n"
+				+ " (exit): Leave the app");
 	}
 	
 	
@@ -151,12 +152,14 @@ public class AppInterface {
 			getAvgAge();
 		}
 		
+		else if (s.equals("archive"))
+		{
+			phaseOut();
+		}
 		else if (s.equals("exit")) {
 			this.close();
 			return false;
 		}
-		
-		
 		
 		else {
 			System.out.println("Sorry, wrong input or improperly formatted, try again.");
@@ -173,7 +176,7 @@ public class AppInterface {
     		stmt = connection.createStatement();
     		rs = stmt.executeQuery("SELECT * FROM Employee");
     		while (rs.next()) {
-    			System.out.printf("Employee's ID: %d  | Employee's name: %s | Employee's role: %s\n ", rs.getInt("eid"), rs.getString("name"), rs.getString("role"));
+    			System.out.printf("\nEmployee's ID: %d  | Employee's name: %s | Employee's role: %s\n ", rs.getInt("eid"), rs.getString("name"), rs.getString("role"));
     		}
 		}
 		catch (SQLException e) {
@@ -274,6 +277,44 @@ public class AppInterface {
 			System.out.println("Error creating statement: " + e.getMessage());
 		}
 	}
+	
+	private void phaseOut() {
+		String date;
+		boolean valid = false;
+
+		System.out.println("Please input a cutoff date to archive old screenings.\n"
+				+ "Format should be mm/dd/yyyy: ");
+		date = scan.nextLine();
+		while (!isValidDate(date)) {
+			System.out.println("Improper format, try again. mm/dd/yyyy");
+			date = scan.nextLine();
+		}
+
+		try {
+			pstmt = connection.prepareStatement("CALL PhaseScreeningOut(STR_TO_DATE(?, '%m/%d/%Y'))");
+			pstmt.setString(1, date);
+			pstmt.executeQuery();
+			System.out.printf("Succesfully archived Screenings older than %s.\n", date);
+		}
+		catch (SQLException e) {
+			System.out.println("Error creating statement: " + e.getMessage());
+		}
+		
+	}
+	
+	/**
+	 * Checks whether string is in a valid date format
+	 * @param d the date
+	 * @return boolean value
+	 */
+	private boolean isValidDate(String d) 
+    { 
+        String regex = "^(1[0-2]|0[1-9])/(3[01]"
+                       + "|[12][0-9]|0[1-9])/[0-9]{4}$"; 
+        Pattern pattern = Pattern.compile(regex); 
+        Matcher matcher = pattern.matcher((CharSequence)d); 
+        return matcher.matches();
+    } 
 	
 	
 }

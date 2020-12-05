@@ -8,8 +8,7 @@ public class Driver
 		  AppInterface app = new AppInterface();
 		  System.out.println("Choose an option:\n"
 					+ " (a): Access as admin.\n"
-					+ " (u): Access as user"
-					+ "\n");
+					+ " (u): Access as user");
 		  if (app.isConnected())
 		  {
 			  String input = scan.nextLine();
