@@ -14,7 +14,7 @@ public class AppInterface {
 	public AppInterface() {
 		
 		try {
-			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/theater?serverTimezone=UTC","root", "root");
+			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/theater?serverTimezone=UTC","root", "myfirstdb");
 		} 
 		catch (SQLException e) {
 			System.out.println("Connection Failed! Check output console");
@@ -270,7 +270,7 @@ public class AppInterface {
     		}
 		}
 		catch (SQLException e) {
-			System.out.println("Error creating statement");
+			System.out.println("Error creating statement: " + e.getMessage());
 		}
 	}
 	
