@@ -31,24 +31,25 @@ foreign key(mID) REFERENCES Movie(mID)
 DROP TABLE IF EXISTS Room;
 CREATE TABLE Room (
 roomID INT NOT NULL,
-status VARCHAR(10),
+capacity INT NOT NULL,
 primary key(roomID)
 );
 
-/*  Creating 'Seats' table  */
-DROP TABLE IF EXISTS Seats;
-CREATE TABLE Seats (
+/*  Creating 'Seat' table  */
+DROP TABLE IF EXISTS Seat;
+CREATE TABLE Seat (
 seatID INT NOT NULL,
 roomID INT NOT NULL, 
 status VARCHAR(10),
-primary key(seatID),
-foreign key(roomID) REFERENCES Room(roomID)
+primary key(seatID, roomID),
+foreign key(roomID) REFERENCES Room(roomID),
+CONSTRAINT statusCheck CHECK(status = "vacant" OR status = "reserved")
 );
 
 /*  Creating 'Customer' table  */
 DROP TABLE IF EXISTS Customer;
 CREATE TABLE Customer(
-cID INT NOT NULL, 
+cID INT NOT NULL AUTO_INCREMENT, 
 name VARCHAR(50),
 age INT,
 primary key(cID)
@@ -61,11 +62,11 @@ resID INT NOT NULL AUTO_INCREMENT,
 cID INT,
 screenID INT,
 seatID INT, 
-date datetime,
+date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 primary key(resID),
 foreign key(cID) REFERENCES Customer(cID),
 foreign key(screenID) REFERENCES Screening(screenID),
-foreign key(seatID) REFERENCES Seats(seatID)
+foreign key(seatID) REFERENCES Seat(seatID)
 );
 
 /*  Creating 'Ticket' table  */
@@ -130,18 +131,68 @@ BEGIN
 END //
 DELIMITER ;
 
+# Procedure to fill the seats in the movie theater gets called downwards in the sql file.
+DELIMITER //
+CREATE PROCEDURE fillSeat()
+BEGIN
+	DECLARE cap INT;
+    DECLARE id INT;
+    DECLARE i INT DEFAULT 1;
+    DECLARE j INT DEFAULT 1;
+    DECLARE numroom INT;
+    
+    SELECT COUNT(*) INTO numroom FROM Room;
+    
+    WHILE i <= numroom DO
+		SELECT capacity INTO cap FROM Room WHERE roomID = i;
+        SET j = 1;
+		WHILE j <= cap DO
+			INSERT INTO Seat Values(j, i, "vacant");
+            SET j = j + 1;
+		END WHILE;
+        SET i = i + 1;
+	END WHILE;
+END //
+DELIMITER ;
+
+DELIMITER //
+# Procedure finalizes a reservation updating all the required tables
+CREATE PROCEDURE reserve(
+    IN inputcid INT,
+	inputmid INT,
+    inputscreenid INT,
+    inputseatid INT
+)
+BEGIN
+    INSERT INTO Reservation Values(DEFAULT, inputcid, inputscreenid, inputseatID, DEFAULT);
+	UPDATE Seat SET status = "reserved" WHERE seatID = inputseatID;
+END //
+DELIMITER ;
+
+
 
 
 INSERT INTO Employee VALUES(123, "Daniel", "Cashier");
 
 INSERT INTO Customer VALUES(1, "Tyler", 24);
 INSERT INTO Customer VALUES(2, "Amy", 29);
-INSERT INTO Movie VALUES(DEFAULT, "Gone with the wind", 136, "PG-13", '2000-02-16', '2000-03-16');
-INSERT INTO Screening VALUES(1, 1, 1, '2000-02-16 12:30:00', DEFAULT);
 
-INSERT INTO Seats Values(1, 1, "reserved");
-INSERT INTO Seats Values(1, 2, "reserved");
-INSERT INTO Seats Values(1, 3, "vacant");
-INSERT INTO Seats Values(1, 4, "reserved");
-INSERT INTO Seats Values(2, 5, "reserved");
-INSERT INTO Seats Values(1, 6, "vacant");
+INSERT INTO Movie VALUES(DEFAULT, "Gone with the wind", 136, "R", '2000-02-16', '2020-12-20');
+INSERT INTO Movie VALUES(DEFAULT, "Boyhood", 145, "PG-13", '2010-04-24', '2020-12-26');
+
+INSERT INTO Screening VALUES(1, 1, 1, '2020-12-19 12:30:00', DEFAULT);
+INSERT INTO Screening VALUES(2, 1, 1, '2020-12-19 15:30:00', DEFAULT);
+INSERT INTO Screening VALUES(3, 2, 2, '2020-12-18 09:00:00', DEFAULT);
+
+INSERT INTO Room VALUES(1, 40);
+INSERT INTO Room VALUES(2, 60);
+INSERT INTO Room VALUES(3, 40);
+INSERT INTO Room VALUES(4, 120);
+
+CALL fillSeat;
+UPDATE Seat SET status = "reserved" WHERE roomID = 1 AND seatID = 1;
+UPDATE Seat SET status = "reserved" WHERE roomID = 1 AND seatID = 2;
+UPDATE Seat SET status = "reserved" WHERE roomID = 2 AND seatID = 1;
+UPDATE Seat SET status = "reserved" WHERE roomID = 2 AND seatID = 2;
+UPDATE Seat SET status = "reserved" WHERE roomID = 2 AND seatID = 3;
+UPDATE Seat SET status = "reserved" WHERE roomID = 3 AND seatID = 1;

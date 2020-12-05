@@ -1,7 +1,10 @@
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.regex.Matcher; 
 import java.util.regex.Pattern; 
+import java.util.HashSet;
 public class AppInterface {
 	
 	private Connection connection = null;
@@ -101,7 +104,7 @@ public class AppInterface {
 		s = s.toLowerCase();
 		
 		if (s.equals("r")){
-			//dispReservationMenu();
+			reservation();
 		}
 		else if(s.equals("seatstatus"))
 		{
@@ -280,7 +283,6 @@ public class AppInterface {
 	
 	private void phaseOut() {
 		String date;
-		boolean valid = false;
 
 		System.out.println("Please input a cutoff date to archive old screenings.\n"
 				+ "Format should be mm/dd/yyyy: ");
@@ -300,6 +302,149 @@ public class AppInterface {
 			System.out.println("Error creating statement: " + e.getMessage());
 		}
 		
+	}
+	
+	private void reservation() {
+		int cID, mID, roomID, seatID, screenID;
+		String selectedMovie, name, showTime;
+		HashSet<Integer> availableM = new HashSet<Integer>();
+		HashSet<Integer> screenings = new HashSet<Integer>();
+		HashSet<Integer> seats = new HashSet<Integer>();
+		
+		try {
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery("SELECT Movie.mID, title, rating, duration FROM Movie, Screening, Room, Seat "
+				+	"WHERE Movie.mID = Screening.mID AND Screening.mID = Movie.mID AND Seat.roomID = Room.roomID "
+				+	"AND Seat.status = 'vacant' GROUP BY Movie.mID");
+			System.out.println("\nCurrently, there are available seats for the following movies:");
+			while (rs.next()) {
+				System.out.printf("		\"%s\"  | Duration: %d |  Rated: %S  |  ID: %d\n",
+					rs.getString("title"), rs.getInt("duration"), rs.getString("rating"), rs.getInt("Movie.mID"));
+				availableM.add(rs.getInt("Movie.mID"));
+			}
+			System.out.println("Enter the ID of the movie you want to make a reservation for");
+			
+			try {
+				mID = Integer.parseInt(scan.nextLine());
+				while (!availableM.contains(mID)) {
+					System.out.println("Incorrect movie ID, try again");
+				}
+			}
+			catch (NumberFormatException e) {
+				System.out.println("Expected a number but input was different, cancelling reservation.");
+				return;
+			}
+			
+			pstmt = connection.prepareStatement("SELECT title FROM Movie WHERE mID = ?"); 
+			pstmt.setString(1, Integer.toString(mID));
+			rs = pstmt.executeQuery();
+			rs.next();
+			selectedMovie = rs.getString("title");
+			
+			pstmt = connection.prepareStatement("SELECT showingTime, screenID FROM Screening WHERE mID = ?");
+			pstmt.setString(1, Integer.toString(mID));
+			rs = pstmt.executeQuery();
+			System.out.printf("\nFor the movie \"%s\" we have the following showing times: \n", selectedMovie);
+			while (rs.next()) {
+				screenings.add(rs.getInt("screenID"));
+				showTime = new SimpleDateFormat("EEE, MMM d, HH:mm a").format(rs.getTimestamp("ShowingTime"));
+				System.out.printf("%s	|	ID = %d\n", showTime, rs.getInt("screenID"));
+			}
+			if (screenings.isEmpty()) {
+				System.out.println("Oops, seems like there are no available showing times, check again later");
+				return;
+			}
+			
+			System.out.printf("\nEnter the ID of the showing time for \"%s\".\n", selectedMovie);
+			
+			try {
+				screenID = Integer.parseInt(scan.nextLine());
+				while (!screenings.contains(screenID)) {
+					System.out.println("Incorrect showing time ID, try again");
+				}
+			}
+			catch (NumberFormatException e) {
+				System.out.println("Expected a number but input was different, cancelling reservation.");
+				return;
+			}
+			
+			pstmt = connection.prepareStatement("SELECT roomID FROM Screening WHERE screenID = ?");
+			pstmt.setString(1, Integer.toString(screenID));
+			rs = pstmt.executeQuery();
+			rs.next();
+			roomID = rs.getInt("roomID");
+			System.out.println("\nBelow is a list of seats available, choose one: ");
+			pstmt = connection.prepareStatement("SELECT seatID, status FROM Seat WHERE RoomID = ? ORDER BY seatID");
+			pstmt.setString(1, Integer.toString(roomID));
+			rs = pstmt.executeQuery();
+			System.out.println("------------ SCREEN LOCATED HERE ---------- ");
+			while (rs.next()) {
+				for (int i = 0; i < 10; i++) {
+					boolean vacant = rs.getString("status").equals("vacant") ? true : false;
+					if (vacant) {
+						System.out.printf("{%02d}    ", rs.getInt("seatID"));
+						seats.add(rs.getInt("seatID"));
+					}
+					else {
+						System.out.print("{RR}    ");
+					}
+	
+					if (i != 9) rs.next();
+				}
+				System.out.println();
+				
+			}
+			
+			try {
+				seatID = Integer.parseInt(scan.nextLine());
+				while (!seats.contains(seatID)) {
+					System.out.println("Incorrect seat ID, try again");
+				}
+			}
+			catch (NumberFormatException e) {
+				System.out.println("Expected a number but input was different, cancelling reservation.");
+				return;
+			}
+			
+			System.out.println("\nEnter the customer's id to finalize the reservation: ");
+			try {
+				cID = Integer.parseInt(scan.nextLine());
+			}
+			catch (NumberFormatException e) {
+				System.out.println("Expected a number but input was different, cancelling reservation.");
+				return;
+			}
+			pstmt = connection.prepareStatement("SELECT name FROM Customer WHERE cID = ?");
+			pstmt.setString(1,  Integer.toString(cID));
+			rs = pstmt.executeQuery();
+			rs.next();
+			name = rs.getString("name");
+			
+			
+			// Reservation procedure happens here
+			pstmt = connection.prepareStatement("CALL reserve(?, ?, ?, ?)");
+			pstmt.setString(1, Integer.toString(cID));
+			pstmt.setString(2, Integer.toString(mID));
+			pstmt.setString(3, Integer.toString(screenID));
+			pstmt.setString(4, Integer.toString(seatID));
+			rs = pstmt.executeQuery();
+			
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery("SELECT showingTime FROM Screening");
+			rs.next();
+			showTime = new SimpleDateFormat("EEE, MMM d, HH:mm a").format(rs.getTimestamp("ShowingTime"));
+			System.out.printf("\nReservation sucessfully made for customer %s. Below are the details.\n"
+					+ "	Movie: %s\n"
+					+ "	Date and time: %s\n"
+					+ "	assigned seat: %d\n"
+					+ "	assigned room: %d\n",
+					name, selectedMovie, showTime, seatID, roomID);
+			
+		}
+		
+		catch (SQLException e) {
+			System.out.println("Error creating statement: " + e.getMessage());
+		}
 	}
 	
 	/**
