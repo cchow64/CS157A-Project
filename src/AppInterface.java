@@ -177,7 +177,7 @@ public class AppInterface {
     		}
 		}
 		catch (SQLException e) {
-			System.out.println("Error creating statement");
+			System.out.println("Error creating statement: " + e.getMessage());
 		}
 	}
 	
@@ -190,7 +190,7 @@ public class AppInterface {
     		}
 		}
 		catch (SQLException e) {
-			System.out.println("Error creating statement");
+			System.out.println("Error creating statement: " + e.getMessage());
 		}
 	}
 	
@@ -198,12 +198,13 @@ public class AppInterface {
 		try {
     		stmt = connection.createStatement();
     		rs = stmt.executeQuery("SELECT * FROM Customer");
+    		System.out.print("Customer ID	|	Name		|	Age\n");
     		while (rs.next()) {
-    			System.out.printf("Customer ID: %d  |  Customer rID: %d  |  Customer name: %s\n", rs.getInt("cID"), rs.getInt("reservID"), rs.getString("name"));
+    			System.out.printf("%d		|	%s		|	%d\n", rs.getInt("cID"), rs.getString("name"), rs.getInt("Age"));
     		}
 		}
 		catch (SQLException e) {
-			System.out.println("Error creating statement");
+			System.out.println("Error creating statement: " + e.getMessage());
 		}
 		
 		
@@ -218,7 +219,7 @@ public class AppInterface {
     		}
 		}
 		catch (SQLException e) {
-			System.out.println("Error creating statement");
+			System.out.println("Error creating statement: " + e.getMessage());
 		}
 	}
 	
@@ -231,7 +232,7 @@ public class AppInterface {
     		}
 		}
 		catch (SQLException e) {
-			System.out.println("Error creating statement");
+			System.out.println("Error creating statement: " + e.getMessage());
 		}
 	}
 	
@@ -244,7 +245,7 @@ public class AppInterface {
     		}
 		}
 		catch (SQLException e) {
-			System.out.println("Error creating statement");
+			System.out.println("Error creating statement: " + e.getMessage());
 		}
 	}
 	
@@ -257,7 +258,7 @@ public class AppInterface {
     		}
 		}
 		catch (SQLException e) {
-			System.out.println("Error creating statement");
+			System.out.println("Error creating statement: " + e.getMessage());
 		}
 	}
 	
