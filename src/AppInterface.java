@@ -264,7 +264,7 @@ public class AppInterface {
 	private void get5Star() {
 		try {
     		stmt = connection.createStatement();
-    		rs = stmt.executeQuery("SELECT distinct Movie.mID, Movie.title FROM Movie, MovieStats where Movie.mID in (SELECT MovieStats.mID FROM MovieStats where stars = 5)");
+    		rs = stmt.executeQuery("SELECT Movie.mID, Movie.title FROM Movie where stars = 5");
     		while (rs.next()) {
     			System.out.printf("Movie ID: %d  | Movie title: %s\n", rs.getInt("mID"), rs.getString("title"));
     		}
@@ -316,7 +316,7 @@ public class AppInterface {
 	private void get4Star() {
 		try {
     		stmt = connection.createStatement();
-    		rs = stmt.executeQuery("SELECT Movie.mID, title FROM Movie, MovieStats WHERE Movie.mID = MovieStats.mID and stars >=4 and duration < 120");
+    		rs = stmt.executeQuery("SELECT mID, title FROM Movie WHERE stars >=4 and duration < 120");
     		while (rs.next()) {
     			System.out.printf("Movie ID: %d  | Movie title: %s\n" , rs.getInt("Movie.mID"), rs.getString("title"));
     		}
