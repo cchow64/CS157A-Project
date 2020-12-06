@@ -171,6 +171,18 @@ BEGIN
 END //
 DELIMITER ;
 
+# Trigger that deletes reservations when a transaction is cancelled
+DROP Trigger IF EXISTS autoDeleteReservation;
+DELIMITER //
+CREATE TRIGGER autoDeleteReservation
+AFTER DELETE ON Transactions
+FOR EACH ROW
+BEGIN
+    DELETE FROM Reservation 
+    WHERE resID = OLD.resID;
+END //
+DELIMITER ;
+
 
 
 
