@@ -20,7 +20,7 @@ public class AppInterface {
 	public AppInterface() {
 		
 		try {
-			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/theater?serverTimezone=UTC","root", "root");
+			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/theater?serverTimezone=UTC","root", "myfirstdb");
 		} 
 		catch (SQLException e) {
 			System.out.println("Connection Failed! Check output console");
@@ -328,6 +328,7 @@ public class AppInterface {
 	
 	private void setStars() {
 		try {
+			System.out.println("\nEnter the id of the movie and the stars separated by a space.");
 			String inputLine = scan.nextLine();
 			String tokens[] = inputLine.split(" ");
 			Integer.parseInt(tokens[0]);
@@ -345,7 +346,7 @@ public class AppInterface {
 			System.out.println("Error creating statement: " + e.getMessage());
 		}
 		catch (NumberFormatException e) {
-			System.out.println("Error: Received invalid input");
+			System.out.println("Error changing stars: Received invalid input");
 		}
 	}
 	
