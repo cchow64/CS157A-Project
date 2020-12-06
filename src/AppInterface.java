@@ -98,6 +98,7 @@ public class AppInterface {
 				+ " (einfo): Show employee's information.\n"
 				+ " (cname): Show customer names that appear more than once.\n"
 				+ " (avgage): Show average age of customers.\n"
+				+ " (setstars): Change the stars of a movie.\n"
 				+ " (numreservation): Show number of reservations per customer.\n"
 				+ " (employee): Get employee’s name responsible for a transaction.\n"
 				+ " (name): Display all names (nonduplicates) of both customers and employees.\n"
@@ -173,6 +174,11 @@ public class AppInterface {
 		
 		else if (s.equals("avgage")) {
 			getAvgAge();
+		}
+		
+		else if (s.equals("setstars"))
+		{
+			setStars();
 		}
 		
 		else if (s.equals("archive"))
@@ -317,6 +323,29 @@ public class AppInterface {
 		}
 		catch (SQLException e) {
 			System.out.println("Error creating statement: " + e.getMessage());
+		}
+	}
+	
+	private void setStars() {
+		try {
+			String inputLine = scan.nextLine();
+			String tokens[] = inputLine.split(" ");
+			Integer.parseInt(tokens[0]);
+			Integer.parseInt(tokens[1]);
+			
+    		pstmt = connection.prepareStatement("UPDATE Movie SET STARS = ? WHERE mID = ?");
+    		pstmt.setString(1, tokens[0]);
+    		pstmt.setString(2,  tokens[1]);
+    		rs = pstmt.executeQuery();
+    		rs.next();
+    		System.out.printf("The rating for the movie with ID = $s has been updated to $s stars.", tokens[0], tokens[1]);	
+		}
+		
+		catch (SQLException e) {
+			System.out.println("Error creating statement: " + e.getMessage());
+		}
+		catch (NumberFormatException e) {
+			System.out.println("Error: Received invalid input");
 		}
 	}
 	
