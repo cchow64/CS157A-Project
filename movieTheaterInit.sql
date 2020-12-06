@@ -12,6 +12,7 @@ duration INT NOT NULL,
 rating VARCHAR(20) NOT NULL,
 releaseDate DATE,
 endDate DATE,
+stars INT,
 primary key(mId)
 );
 
@@ -110,13 +111,6 @@ showingTime datetime
 
 
 
-
-
-
-
-
-
-
 # Procedure to make a phase screenings out:
 DELIMITER //
 CREATE PROCEDURE PhaseScreeningOut(
@@ -196,10 +190,10 @@ INSERT INTO CUSTOMER VALUES(3, "James", 17);
 INSERT INTO CUSTOMER VALUES(4, "Sarah", 45);
 INSERT INTO Customer VALUES(5, "Tyler", 18);
 
-INSERT INTO Movie VALUES(DEFAULT, "Gone with the wind", 136, "R", '2000-02-16', '2020-12-20');
-INSERT INTO Movie VALUES(DEFAULT, "Boyhood", 145, "PG-13", '2010-04-24', '2020-12-26');
-INSERT INTO Movie VALUES(DEFAULT, "Batman", 100, "PG-13", '2010-04-24', '2019-12-26');
-INSERT INTO Movie VALUES(DEFAULT, "Interstellar", 110, "PG-13", '2013-04-24', '2015-12-26');
+INSERT INTO Movie VALUES(DEFAULT, "Gone with the wind", 136, "R", '2000-02-16', '2020-12-20', 4);
+INSERT INTO Movie VALUES(DEFAULT, "Boyhood", 145, "PG-13", '2010-04-24', '2020-12-26', 3);
+INSERT INTO Movie VALUES(DEFAULT, "Batman", 100, "PG-13", '2010-04-24', '2019-12-26', 5);
+INSERT INTO Movie VALUES(DEFAULT, "Interstellar", 110, "PG-13", '2013-04-24', '2015-12-26', 3);
 
 INSERT INTO Screening VALUES(1, 1, 1, '2020-12-19 12:30:00', DEFAULT);
 INSERT INTO Screening VALUES(2, 1, 1, '2020-12-19 15:30:00', DEFAULT);
@@ -229,8 +223,3 @@ INSERT INTO Reservation VALUES(DEFAULT, 1, 1,  2, '2020-11-18');
 INSERT INTO Transactions VALUES(DEFAULT, 123, "2020-11-01", 1);
 INSERT INTO Transactions VALUES(DEFAULT, 2, "2019-10-31", 2);
 
-
-INSERT INTO MovieStats VALUES(4, 1);
-INSERT INTO MovieStats VALUES(3, 2);
-INSERT INTO MovieStats VALUES(5, 3);
-INSERT INTO MovieStats VALUES(3, 4);
