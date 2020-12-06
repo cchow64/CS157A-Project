@@ -61,13 +61,12 @@ CREATE TABLE Reservation (
 resID INT NOT NULL AUTO_INCREMENT,
 cID INT,
 screenID INT,
-roomID INT,
 seatID INT, 
 date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 primary key(resID),
 foreign key(cID) REFERENCES Customer(cID),
 foreign key(screenID) REFERENCES Screening(screenID),
-foreign key(roomID, seatID) REFERENCES Seat(roomID, seatID)
+foreign key(seatID) REFERENCES Seat(seatID)
 );
 
 
@@ -208,15 +207,16 @@ UPDATE Seat SET status = "reserved" WHERE roomID = 2 AND seatID = 2;
 UPDATE Seat SET status = "reserved" WHERE roomID = 2 AND seatID = 3;
 UPDATE Seat SET status = "reserved" WHERE roomID = 3 AND seatID = 1;
 
-INSERT INTO Reservation VALUES(DEFAULT, 1, 1, 1, 1, '2020-11-18');
-INSERT INTO Reservation VALUES(DEFAULT, 2, 1, 1, 2, '2020-11-18');
-INSERT INTO Reservation VALUES(DEFAULT, 3, 1, 2, 3, '2020-11-20');
-INSERT INTO Reservation VALUES(DEFAULT, 4, 1, 2, 1, '2020-11-05');
-INSERT INTO Reservation VALUES(DEFAULT, 2, 2, 3, 1, '2020-11-18');
-INSERT INTO Reservation VALUES(DEFAULT, 1, 1, 2, 2, '2020-11-18');
+INSERT INTO Reservation VALUES(DEFAULT, 1, 1,  1, '2020-11-18');
+INSERT INTO Reservation VALUES(DEFAULT, 2, 1,  2, '2020-11-18');
+INSERT INTO Reservation VALUES(DEFAULT, 3, 1,  3, '2020-11-20');
+INSERT INTO Reservation VALUES(DEFAULT, 4, 1,  1, '2020-11-05');
+INSERT INTO Reservation VALUES(DEFAULT, 2, 2,  1, '2020-11-18');
+INSERT INTO Reservation VALUES(DEFAULT, 1, 1,  2, '2020-11-18');
 
 INSERT INTO Transactions VALUES(DEFAULT, 123, "2020-11-01", 1);
 INSERT INTO Transactions VALUES(DEFAULT, 2, "2019-10-31", 2);
+
 
 INSERT INTO MovieStats VALUES(4, 1);
 INSERT INTO MovieStats VALUES(3, 2);
