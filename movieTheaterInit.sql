@@ -70,12 +70,7 @@ foreign key(screenID) REFERENCES Screening(screenID),
 foreign key(roomID, seatID) REFERENCES Seat(roomID, seatID)
 );
 
-/*  Creating 'Ticket' table  */
-DROP TABLE IF EXISTS Ticket;
-CREATE TABLE Ticket (
-price decimal(5, 2), 
-primary key(price)
-);
+
 
 /*  Creating 'Employee' table  */
 DROP TABLE IF EXISTS Employee;
@@ -89,13 +84,12 @@ primary key(eID)
 /*  Creating 'Transactions' table  */
 DROP TABLE IF EXISTS Transactions;
 CREATE TABLE Transactions (
-tID INT NOT NULL,
+tID INT NOT NULL AUTO_INCREMENT,
 eID INT, 
 transactionDate date NOT NULL, 
-total decimal(5,2) NOT NULL, 
 resID INT,
 primary key(tID),
-foreign key(tid) REFERENCES Employee(eID),
+foreign key(eID) REFERENCES Employee(eID),
 foreign key(resID) REFERENCES Reservation(resID) /*not listed in report, but made a foreign key */
 );
 
@@ -103,8 +97,7 @@ foreign key(resID) REFERENCES Reservation(resID) /*not listed in report, but mad
 DROP TABLE IF EXISTS MovieStats;
 CREATE TABLE MovieStats ( 
 stars INT, 
-mID int NOT NULL AUTO_INCREMENT,
-totalSales DECIMAL(10,2),
+mID int NOT NULL,
 foreign key(mID) REFERENCES Movie(mID)
 );
 
@@ -115,6 +108,15 @@ mID int NOT NULL,
 roomID INT NOT NULL, 
 showingTime datetime
 );
+
+
+
+
+
+
+
+
+
 
 # Procedure to make a phase screenings out:
 DELIMITER //
@@ -174,6 +176,8 @@ DELIMITER ;
 
 
 INSERT INTO Employee VALUES(123, "Daniel", "Cashier");
+INSERT INTO Employee VALUES(2, "Colin", "Server");
+INSERT INTO Employee VALUES(3, "Tyler", "Cashier");
 
 INSERT INTO Customer VALUES(1, "Tyler", 10);
 INSERT INTO CUSTOMER VALUES(2, "Amy", 20);
@@ -184,6 +188,7 @@ INSERT INTO Customer VALUES(5, "Tyler", 18);
 INSERT INTO Movie VALUES(DEFAULT, "Gone with the wind", 136, "R", '2000-02-16', '2020-12-20');
 INSERT INTO Movie VALUES(DEFAULT, "Boyhood", 145, "PG-13", '2010-04-24', '2020-12-26');
 INSERT INTO Movie VALUES(DEFAULT, "Batman", 100, "PG-13", '2010-04-24', '2019-12-26');
+INSERT INTO Movie VALUES(DEFAULT, "Interstellar", 110, "PG-13", '2013-04-24', '2015-12-26');
 
 INSERT INTO Screening VALUES(1, 1, 1, '2020-12-19 12:30:00', DEFAULT);
 INSERT INTO Screening VALUES(2, 1, 1, '2020-12-19 15:30:00', DEFAULT);
@@ -210,4 +215,10 @@ INSERT INTO Reservation VALUES(DEFAULT, 4, 1, 2, 1, '2020-11-05');
 INSERT INTO Reservation VALUES(DEFAULT, 2, 2, 3, 1, '2020-11-18');
 INSERT INTO Reservation VALUES(DEFAULT, 1, 1, 2, 2, '2020-11-18');
 
-INSERT INTO Transactions VALUES()
+INSERT INTO Transactions VALUES(DEFAULT, 123, "2020-11-01", 1);
+INSERT INTO Transactions VALUES(DEFAULT, 2, "2019-10-31", 2);
+
+INSERT INTO MovieStats VALUES(4, 1);
+INSERT INTO MovieStats VALUES(3, 2);
+INSERT INTO MovieStats VALUES(5, 3);
+INSERT INTO MovieStats VALUES(3, 4);

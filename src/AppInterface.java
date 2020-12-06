@@ -88,6 +88,7 @@ public class AppInterface {
 				+ " (4star) : Display title and ID of movie with at least 4 stars and a running time of less than 2 hours\n"
 				+ " (create) : Create customer account\n"
 				+ " (ongoingmovie) : Display ongoing movies\n"
+				+ " (duration) : Display title and ID of movies with a running time of less than selected time\n"
 				+ " (exit): Leave the app");
 	}
 	
@@ -98,6 +99,8 @@ public class AppInterface {
 				+ " (cname): Show customer names that appear more than once.\n"
 				+ " (avgage): Show average age of customers.\n"
 				+ " (numreservation): Show number of reservations per customer.\n"
+				+ " (employee): Get employee’s name responsible for a transaction.\n"
+				+ " (name): Display all names (nonduplicates) of both customers and employees.\n"
 				+ " (archive): Archive screenings.\n"
 				+ " (exit): Leave the app");
 	}
@@ -140,6 +143,12 @@ public class AppInterface {
 		else if(s.equals("ongoingmovie")) {
 			showCurrentMovies();
 		}
+		
+		else if(s.equals("duration"))
+        {
+            getBelowDuration();
+        }
+		
 		else if (s.equals("exit")) {
 			this.close();
 			return false;
@@ -176,7 +185,15 @@ public class AppInterface {
 			numReservations();
 		}
 		
+		else if (s.equals("employee"))
+		{
+			employeeTransaction();
+		}
 		
+		else if (s.equals("name"))
+		{
+			getNames();
+		}
 		
 		
 		
@@ -329,8 +346,31 @@ public class AppInterface {
 		}
 	}
 	
+	private void employeeTransaction() {
+		try {
+    		stmt = connection.createStatement();
+    		rs = stmt.executeQuery("Select name, tID from Employee, Transactions where Transactions.eID = Employee.eID;");
+    		while (rs.next()) {
+    			System.out.printf("Employee Name: %s |  Transaction ID: %d \n", rs.getString("name"), rs.getInt("tID"));
+    		}
+		}
+		catch (SQLException e) {
+			System.out.println("Error creating statement: " + e.getMessage());
+		}
+	}
 	
-
+	private void getNames() {
+		try {
+    		stmt = connection.createStatement();
+    		rs = stmt.executeQuery("Select name From Customer UNION Select name From Employee;");
+    		while (rs.next()) {
+    			System.out.printf(" Name: %s \n", rs.getString("name"));
+    		}
+		}
+		catch (SQLException e) {
+			System.out.println("Error creating statement: " + e.getMessage());
+		}
+	}
 	
 	
 	private void createCustomer() {
@@ -358,6 +398,23 @@ public class AppInterface {
 			System.out.println("Error creating statement: " + e.getMessage());
 		}
 	}
+	
+	private void getBelowDuration() {
+        try {
+            stmt = connection.createStatement();
+            System.out.println("Enter the duration: ");
+            Scanner scanDur = new Scanner(System.in);
+            String input = scanDur.nextLine();
+            String queryString = "SELECT Movie.mID, title, duration FROM Movie WHERE duration <" + input;
+            rs = stmt.executeQuery(queryString);
+            while (rs.next()) {
+                System.out.printf("Movie ID: %d  | Movie title: %s  | duration: %d\n" , rs.getInt("Movie.mID"), rs.getString("title"), rs.getInt("duration"));
+            }
+        }
+        catch (SQLException e) {
+            System.out.println("Error creating statement: " + e.getMessage());
+        }
+    }
 	
 	private void phaseOut() {
 		String date;
