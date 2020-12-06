@@ -86,6 +86,7 @@ public class AppInterface {
 				+ " (5star) : Display movies with 5 stars\n"
 				+ " (roomtitle) : Display title of movies playing in each room\n"
 				+ " (4star) : Display title and ID of movie with at least 4 stars and a running time of less than 2 hours\n"
+				+ " (create) : Create customer account\n"
 				+ " (exit): Leave the app");
 	}
 	
@@ -128,7 +129,11 @@ public class AppInterface {
 		{
 			get4Star(); 
 		}
-		
+		else if (s.equals("create")) 
+		{
+			createCustomer();
+			//getCInfo();
+		}
 		else if (s.equals("exit")) {
 			this.close();
 			return false;
@@ -190,9 +195,9 @@ public class AppInterface {
 	private void getSeatStatus() {
 		try {
     		stmt = connection.createStatement();
-    		rs = stmt.executeQuery("SELECT * FROM Seats where status = 'reserved' ");
+    		rs = stmt.executeQuery("SELECT * FROM Seat where status = 'reserved' ");
     		while (rs.next()) {
-    			System.out.printf("Seat rID: %d  |  Seat ID: %d  |  Seat status: %s\n", rs.getInt("rID"), rs.getInt("seatID"), rs.getString("status"));
+    			System.out.printf("Seat rID: %d  |  Seat ID: %d  |  Seat status: %s\n", rs.getInt("roomID"), rs.getInt("seatID"), rs.getString("status"));
     		}
 		}
 		catch (SQLException e) {
@@ -275,6 +280,32 @@ public class AppInterface {
     		while (rs.next()) {
     			System.out.printf("Movie ID: %d  | Movie title: %s\n" , rs.getInt("Movie.mID"), rs.getString("title"));
     		}
+		}
+		catch (SQLException e) {
+			System.out.println("Error creating statement: " + e.getMessage());
+		}
+	}
+	
+	private void createCustomer() {
+		try {
+    		stmt = connection.createStatement();
+    		Scanner scan1 = new Scanner(System.in);
+    		System.out.println("Enter your name: ");
+    		String nameOfCustomer = scan1.nextLine();
+    		System.out.println("Enter your age: ");
+    		int ageOfCustomer = scan1.nextInt();
+    		stmt.executeUpdate("INSERT INTO Customer(Name, age) VALUES('"+ nameOfCustomer + "', " + ageOfCustomer + ")");
+    		rs = stmt.executeQuery("SELECT max(cID) From Customer");
+    		int tempCID = -1;
+    		while(rs.next())
+    		{
+    			tempCID = rs.getInt("max(cID)");
+    		}
+    		System.out.println(
+    				"Successfully created the account"
+    				+ "\n name: " + nameOfCustomer 
+    				+ "\n age:  " + ageOfCustomer 
+    				+ "\n ID:   " + tempCID);
 		}
 		catch (SQLException e) {
 			System.out.println("Error creating statement: " + e.getMessage());
