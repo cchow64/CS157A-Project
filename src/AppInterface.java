@@ -20,7 +20,7 @@ public class AppInterface {
 	public AppInterface() {
 		
 		try {
-			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/theater?serverTimezone=UTC","root", "myfirstdb");
+			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/theater?serverTimezone=UTC","root", "root");
 		} 
 		catch (SQLException e) {
 			System.out.println("Connection Failed! Check output console");
@@ -87,6 +87,7 @@ public class AppInterface {
 				+ " (roomtitle) : Display title of movies playing in each room\n"
 				+ " (4star) : Display title and ID of movie with at least 4 stars and a running time of less than 2 hours\n"
 				+ " (create) : Create customer account\n"
+				+ " (ongoingmovie) : Display ongoing movies\n"
 				+ " (exit): Leave the app");
 	}
 	
@@ -96,6 +97,7 @@ public class AppInterface {
 				+ " (einfo): Show employee's information.\n"
 				+ " (cname): Show customer names that appear more than once.\n"
 				+ " (avgage): Show average age of customers.\n"
+				+ " (numreservation): Show number of reservations per customer.\n"
 				+ " (archive): Archive screenings.\n"
 				+ " (exit): Leave the app");
 	}
@@ -134,6 +136,10 @@ public class AppInterface {
 			createCustomer();
 			//getCInfo();
 		}
+		
+		else if(s.equals("ongoingmovie")) {
+			showCurrentMovies();
+		}
 		else if (s.equals("exit")) {
 			this.close();
 			return false;
@@ -164,6 +170,17 @@ public class AppInterface {
 		{
 			phaseOut();
 		}
+		
+		else if (s.equals("numreservation"))
+		{
+			numReservations();
+		}
+		
+		
+		
+		
+		
+
 		else if (s.equals("exit")) {
 			this.close();
 			return false;
@@ -285,6 +302,36 @@ public class AppInterface {
 			System.out.println("Error creating statement: " + e.getMessage());
 		}
 	}
+	
+	private void showCurrentMovies() {
+		try {
+    		stmt = connection.createStatement();
+    		rs = stmt.executeQuery("SELECT title FROM Movie WHERE endDate > NOW()");
+    		while (rs.next()) {
+    			System.out.printf("Movie Title: %s \n" , rs.getString("title"));
+    		}
+		}
+		catch (SQLException e) {
+			System.out.println("Error creating statement: " + e.getMessage());
+		}
+	}
+	
+	private void numReservations() {
+		try {
+    		stmt = connection.createStatement();
+    		rs = stmt.executeQuery("Select name, count(*) From Customer, Reservation where customer.cID = reservation.cID group by reservation.cID");
+    		while (rs.next()) {
+    			System.out.printf("Customer Name: %s   | # of reservations: %d \n", rs.getString("name"), rs.getInt("count(*)"));
+    		}
+		}
+		catch (SQLException e) {
+			System.out.println("Error creating statement: " + e.getMessage());
+		}
+	}
+	
+	
+
+	
 	
 	private void createCustomer() {
 		try {

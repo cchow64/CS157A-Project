@@ -61,12 +61,13 @@ CREATE TABLE Reservation (
 resID INT NOT NULL AUTO_INCREMENT,
 cID INT,
 screenID INT,
+roomID INT,
 seatID INT, 
 date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 primary key(resID),
 foreign key(cID) REFERENCES Customer(cID),
 foreign key(screenID) REFERENCES Screening(screenID),
-foreign key(seatID) REFERENCES Seat(seatID)
+foreign key(roomID, seatID) REFERENCES Seat(roomID, seatID)
 );
 
 /*  Creating 'Ticket' table  */
@@ -90,7 +91,7 @@ DROP TABLE IF EXISTS Transactions;
 CREATE TABLE Transactions (
 tID INT NOT NULL,
 eID INT, 
-transactionDate datetime NOT NULL, 
+transactionDate date NOT NULL, 
 total decimal(5,2) NOT NULL, 
 resID INT,
 primary key(tID),
@@ -174,11 +175,15 @@ DELIMITER ;
 
 INSERT INTO Employee VALUES(123, "Daniel", "Cashier");
 
-INSERT INTO Customer VALUES(1, "Tyler", 24);
-INSERT INTO Customer VALUES(2, "Amy", 29);
+INSERT INTO Customer VALUES(1, "Tyler", 10);
+INSERT INTO CUSTOMER VALUES(2, "Amy", 20);
+INSERT INTO CUSTOMER VALUES(3, "James", 17);
+INSERT INTO CUSTOMER VALUES(4, "Sarah", 45);
+INSERT INTO Customer VALUES(5, "Tyler", 18);
 
 INSERT INTO Movie VALUES(DEFAULT, "Gone with the wind", 136, "R", '2000-02-16', '2020-12-20');
 INSERT INTO Movie VALUES(DEFAULT, "Boyhood", 145, "PG-13", '2010-04-24', '2020-12-26');
+INSERT INTO Movie VALUES(DEFAULT, "Batman", 100, "PG-13", '2010-04-24', '2019-12-26');
 
 INSERT INTO Screening VALUES(1, 1, 1, '2020-12-19 12:30:00', DEFAULT);
 INSERT INTO Screening VALUES(2, 1, 1, '2020-12-19 15:30:00', DEFAULT);
@@ -189,6 +194,7 @@ INSERT INTO Room VALUES(2, 60);
 INSERT INTO Room VALUES(3, 40);
 INSERT INTO Room VALUES(4, 120);
 
+
 CALL fillSeat;
 UPDATE Seat SET status = "reserved" WHERE roomID = 1 AND seatID = 1;
 UPDATE Seat SET status = "reserved" WHERE roomID = 1 AND seatID = 2;
@@ -196,3 +202,12 @@ UPDATE Seat SET status = "reserved" WHERE roomID = 2 AND seatID = 1;
 UPDATE Seat SET status = "reserved" WHERE roomID = 2 AND seatID = 2;
 UPDATE Seat SET status = "reserved" WHERE roomID = 2 AND seatID = 3;
 UPDATE Seat SET status = "reserved" WHERE roomID = 3 AND seatID = 1;
+
+INSERT INTO Reservation VALUES(DEFAULT, 1, 1, 1, 1, '2020-11-18');
+INSERT INTO Reservation VALUES(DEFAULT, 2, 1, 1, 2, '2020-11-18');
+INSERT INTO Reservation VALUES(DEFAULT, 3, 1, 2, 3, '2020-11-20');
+INSERT INTO Reservation VALUES(DEFAULT, 4, 1, 2, 1, '2020-11-05');
+INSERT INTO Reservation VALUES(DEFAULT, 2, 2, 3, 1, '2020-11-18');
+INSERT INTO Reservation VALUES(DEFAULT, 1, 1, 2, 2, '2020-11-18');
+
+INSERT INTO Transactions VALUES()
